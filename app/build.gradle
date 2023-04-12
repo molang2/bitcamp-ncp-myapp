@@ -1,0 +1,71 @@
+plugins {
+  id 'application' 
+  id 'eclipse'
+  id 'java'
+  id 'org.springframework.boot' version '3.0.4'
+  id 'io.spring.dependency-management' version '1.1.0'
+  id "com.github.node-gradle.node" version "3.5.1" // gradle에서 npm 사용
+}
+
+// gradle을 실행하는 host에 node가 없을 경우를 대비하여, 지정된 version에 node를 download하게 만드는 설정
+// $ gradle npmSetup을 실행하여 node 프로그램을 설치한다.
+node {
+  version = '17.6.0'
+  npmVersion = '8.5.1'
+  download = true
+}
+
+/*
+tasks.register("npm-install") {
+  group = "application"
+  description = "Installs dependencies from package.json"
+  tasks.appNpmInstall.exec();
+}
+*/
+task appNpmInstall(type: NpmTask) {
+  description = "Installs dependencies from package.json"
+  workingDir = file("${projectDir}/src/main/resources/static");
+  args = ["install"]
+}
+
+
+group = 'bitcamp'
+version = '0.0.1-SNAPSHOT'
+
+// CLI 환경에서 'build' 작업을 수행할 때 사용하는 설정
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8' 
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+// 'eclipse' 플러그인 설정:
+eclipse {
+
+    // => eclipse 프로젝트 이름 설정하기
+    project {
+        name = "myapp"
+    }
+
+    // => eclipse IDE 설정하기
+    jdt {  
+      sourceCompatibility = 17
+      targetCompatibility = 17
+      javaRuntimeName = "JavaSE-17"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    implementation 'com.google.guava:guava:31.1-jre' //guava는 문자열을 다루기 편하다고 함
+    testImplementation 'junit:junit:4.13.2'
+}
+
+application {
+    mainClass = 'bitcamp.myapp.App'
+}
